@@ -1,0 +1,544 @@
+esphome:
+  name: allbot-vr612
+  friendly_name: ALLBOT VR612
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [allbot]
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  frequency: 400kHz
+
+pca9685:
+  - id: pca
+    address: 0x40
+    frequency: 50Hz
+
+output:
+  - platform: ledc
+    id: buzzer_out
+    pin: GPIO13
+    frequency: 1000Hz
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_fl
+    channel: 0
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_fl
+    channel: 1
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_fr
+    channel: 2
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_fr
+    channel: 3
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_mr
+    channel: 4
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_mr
+    channel: 5
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_rr
+    channel: 6
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_rr
+    channel: 7
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_rl
+    channel: 8
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_rl
+    channel: 9
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_ml
+    channel: 10
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_knee_ml
+    channel: 11
+
+rtttl:
+  id: buzzer
+  output: buzzer_out
+
+allbot:
+  id: bot
+  servos:
+    - {id: hip_fl,  output: pwm_hip_fl,  initial_angle: 45, flipped: false}
+    - {id: knee_fl, output: pwm_knee_fl, initial_angle: 20, flipped: true}
+    - {id: hip_fr,  output: pwm_hip_fr,  initial_angle: 45, flipped: true}
+    - {id: knee_fr, output: pwm_knee_fr, initial_angle: 20, flipped: false}
+    - {id: hip_mr,  output: pwm_hip_mr,  initial_angle: 90, flipped: true}
+    - {id: knee_mr, output: pwm_knee_mr, initial_angle: 20, flipped: false}
+    - {id: hip_rr,  output: pwm_hip_rr,  initial_angle: 45, flipped: false}
+    - {id: knee_rr, output: pwm_knee_rr, initial_angle: 20, flipped: false}
+    - {id: hip_rl,  output: pwm_hip_rl,  initial_angle: 45, flipped: true}
+    - {id: knee_rl, output: pwm_knee_rl, initial_angle: 20, flipped: true}
+    - {id: hip_ml,  output: pwm_hip_ml,  initial_angle: 90, flipped: false}
+    - {id: knee_ml, output: pwm_knee_ml, initial_angle: 20, flipped: true}
+  actions:
+    walk_forward:
+      - duration: 100ms
+        moves: [{servo: knee_rl, angle: 50}, {servo: knee_fl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_rl, angle: 80}, {servo: hip_fl, angle: 5}, {servo: hip_mr, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: knee_rl, angle: 10}, {servo: knee_fl, angle: 10}, {servo: knee_mr, angle: 10}]
+      - duration: 100ms
+        moves: [{servo: knee_rr, angle: 50}, {servo: knee_fr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: knee_rl, angle: 20}
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_rr, angle: 80}
+          - {servo: hip_fr, angle: 5}
+          - {servo: hip_ml, angle: 65}
+      - duration: 100ms
+        moves: [{servo: knee_rr, angle: 10}, {servo: knee_fr, angle: 10}, {servo: knee_ml, angle: 10}]
+      - duration: 100ms
+        moves: [{servo: knee_rl, angle: 50}, {servo: knee_fl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_ml, angle: 20}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_ml, angle: 90}
+          - {servo: hip_rl, angle: 80}
+          - {servo: hip_fl, angle: 5}
+          - {servo: hip_mr, angle: 65}
+
+    walk_backward:
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 80}, {servo: hip_rl, angle: 5}, {servo: hip_mr, angle: 115}]
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 10}, {servo: knee_rl, angle: 10}, {servo: knee_mr, angle: 10}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_rl, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_fr, angle: 80}
+          - {servo: hip_rr, angle: 5}
+          - {servo: hip_ml, angle: 115}
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 10}, {servo: knee_rr, angle: 10}, {servo: knee_ml, angle: 10}]
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_ml, angle: 20}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_ml, angle: 90}
+          - {servo: hip_fl, angle: 80}
+          - {servo: hip_rl, angle: 5}
+          - {servo: hip_mr, angle: 115}
+
+    walk_left:
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 80}, {servo: hip_rr, angle: 10}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rr, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rl, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 10}, {servo: hip_rl, angle: 80}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rl, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_mr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 15}
+          - {servo: hip_fr, angle: 75}
+          - {servo: hip_rl, angle: 15}
+          - {servo: hip_rr, angle: 75}
+      - duration: 50ms
+        moves: [{servo: knee_mr, angle: 20}, {servo: knee_ml, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 45}, {servo: hip_rr, angle: 45}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rr, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rl, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 45}, {servo: hip_rl, angle: 45}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rl, angle: 20}]
+
+    walk_right:
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 10}, {servo: hip_rr, angle: 80}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rr, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rl, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 80}, {servo: hip_rl, angle: 10}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rl, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_mr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 75}
+          - {servo: hip_fr, angle: 15}
+          - {servo: hip_rl, angle: 75}
+          - {servo: hip_rr, angle: 15}
+      - duration: 50ms
+        moves: [{servo: knee_mr, angle: 20}, {servo: knee_ml, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 45}, {servo: hip_rr, angle: 45}]
+      - duration: 50ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rr, angle: 20}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rl, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 45}, {servo: hip_rl, angle: 45}]
+      - duration: 50ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rl, angle: 20}]
+
+    turn_left:
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 80}, {servo: hip_rl, angle: 5}, {servo: hip_mr, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rl, angle: 20}, {servo: knee_mr, angle: 20}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 5}, {servo: hip_rr, angle: 80}, {servo: hip_ml, angle: 115}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rr, angle: 20}, {servo: knee_ml, angle: 20}]
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_ml, angle: 90}
+
+    turn_right:
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 50}, {servo: knee_rl, angle: 50}, {servo: knee_mr, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 5}, {servo: hip_rl, angle: 80}, {servo: hip_mr, angle: 115}]
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 20}, {servo: knee_rl, angle: 20}, {servo: knee_mr, angle: 20}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 50}, {servo: knee_rr, angle: 50}, {servo: knee_ml, angle: 50}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 80}, {servo: hip_rr, angle: 5}, {servo: hip_ml, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 20}, {servo: knee_rr, angle: 20}, {servo: knee_ml, angle: 20}]
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_ml, angle: 90}
+
+    lean_forward:
+      - duration: 200ms
+        moves:
+          - {servo: knee_fl, angle: 90}
+          - {servo: knee_fr, angle: 90}
+          - {servo: knee_mr, angle: 50}
+          - {servo: knee_ml, angle: 50}
+      - duration: 100ms
+      - duration: 200ms
+        moves:
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: knee_ml, angle: 20}
+
+    lean_backward:
+      - duration: 200ms
+        moves:
+          - {servo: knee_rl, angle: 90}
+          - {servo: knee_rr, angle: 90}
+          - {servo: knee_mr, angle: 50}
+          - {servo: knee_ml, angle: 50}
+      - duration: 100ms
+      - duration: 200ms
+        moves:
+          - {servo: knee_rl, angle: 20}
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: knee_ml, angle: 20}
+
+    lean_left:
+      - duration: 200ms
+        moves:
+          - {servo: knee_rr, angle: 90}
+          - {servo: knee_fr, angle: 90}
+          - {servo: knee_mr, angle: 90}
+          - {servo: knee_rl, angle: 10}
+          - {servo: knee_fl, angle: 10}
+          - {servo: knee_ml, angle: 0}
+      - duration: 100ms
+      - duration: 200ms
+        moves:
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: knee_rl, angle: 20}
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_ml, angle: 20}
+
+    lean_right:
+      - duration: 200ms
+        moves:
+          - {servo: knee_rr, angle: 10}
+          - {servo: knee_fr, angle: 10}
+          - {servo: knee_mr, angle: 0}
+          - {servo: knee_rl, angle: 90}
+          - {servo: knee_fl, angle: 90}
+          - {servo: knee_ml, angle: 90}
+      - duration: 100ms
+      - duration: 200ms
+        moves:
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: knee_rl, angle: 20}
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_ml, angle: 20}
+
+    look_left:
+      - duration: 100ms
+        moves:
+          - {servo: hip_rl, angle: 80}
+          - {servo: hip_rr, angle: 10}
+          - {servo: hip_fl, angle: 10}
+          - {servo: hip_fr, angle: 80}
+          - {servo: hip_mr, angle: 125}
+          - {servo: hip_ml, angle: 65}
+      - duration: 50ms
+      - duration: 100ms
+        moves:
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_ml, angle: 90}
+
+    look_right:
+      - duration: 100ms
+        moves:
+          - {servo: hip_rl, angle: 10}
+          - {servo: hip_rr, angle: 80}
+          - {servo: hip_fl, angle: 80}
+          - {servo: hip_fr, angle: 10}
+          - {servo: hip_mr, angle: 65}
+          - {servo: hip_ml, angle: 125}
+      - duration: 50ms
+      - duration: 100ms
+        moves:
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_ml, angle: 90}
+
+    wave_front_left:
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 180}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_fl, angle: 45}]
+      - duration: 100ms
+        moves: [{servo: knee_fl, angle: 20}]
+
+    wave_front_right:
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 180}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_fr, angle: 45}]
+      - duration: 100ms
+        moves: [{servo: knee_fr, angle: 20}]
+
+    wave_rear_left:
+      - duration: 100ms
+        moves: [{servo: knee_rl, angle: 180}]
+      - duration: 50ms
+        moves: [{servo: hip_rl, angle: 0}]
+      - duration: 50ms
+        moves: [{servo: hip_rl, angle: 65}]
+      - duration: 50ms
+        moves: [{servo: hip_rl, angle: 0}]
+      - duration: 50ms
+        moves: [{servo: hip_rl, angle: 45}]
+      - duration: 100ms
+        moves: [{servo: knee_rl, angle: 20}]
+
+    wave_rear_right:
+      - duration: 100ms
+        moves: [{servo: knee_rr, angle: 180}]
+      - duration: 100ms
+        moves: [{servo: hip_rr, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_rr, angle: 65}]
+      - duration: 100ms
+        moves: [{servo: hip_rr, angle: 0}]
+      - duration: 100ms
+        moves: [{servo: hip_rr, angle: 45}]
+      - duration: 100ms
+        moves: [{servo: knee_rr, angle: 20}]
+
+    scared:
+      - duration: 50ms
+        moves:
+          - {servo: knee_fr, angle: 0}
+          - {servo: knee_mr, angle: 0}
+          - {servo: knee_rr, angle: 0}
+          - {servo: knee_fl, angle: 0}
+          - {servo: knee_ml, angle: 0}
+          - {servo: knee_rl, angle: 0}
+      - duration: 100ms
+        moves:
+          - {servo: hip_rr, angle: 80}
+          - {servo: hip_mr, angle: 65}
+          - {servo: hip_rl, angle: 5}
+          - {servo: hip_fr, angle: 5}
+          - {servo: hip_ml, angle: 115}
+          - {servo: hip_fl, angle: 80}
+      - duration: 50ms
+        moves:
+          - {servo: hip_rl, angle: 80}
+          - {servo: hip_mr, angle: 115}
+          - {servo: hip_rr, angle: 5}
+          - {servo: hip_fl, angle: 5}
+          - {servo: hip_ml, angle: 65}
+          - {servo: hip_fr, angle: 80}
+      - duration: 200ms
+        moves:
+          - {servo: hip_rr, angle: 45}
+          - {servo: hip_mr, angle: 90}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_ml, angle: 90}
+          - {servo: hip_fl, angle: 45}
+      - duration: 75ms
+        moves:
+          - {servo: knee_fr, angle: 20}
+          - {servo: knee_mr, angle: 20}
+          - {servo: knee_rr, angle: 20}
+          - {servo: knee_fl, angle: 20}
+          - {servo: knee_ml, angle: 20}
+          - {servo: knee_rl, angle: 20}
+
+api:
+  actions:
+    - action: walk_forward
+      then: [allbot.run_action: {id: bot, action: walk_forward}]
+    - action: walk_backward
+      then: [allbot.run_action: {id: bot, action: walk_backward}]
+    - action: walk_left
+      then: [allbot.run_action: {id: bot, action: walk_left}]
+    - action: walk_right
+      then: [allbot.run_action: {id: bot, action: walk_right}]
+    - action: turn_left
+      then: [allbot.run_action: {id: bot, action: turn_left}]
+    - action: turn_right
+      then: [allbot.run_action: {id: bot, action: turn_right}]
+    - action: lean_forward
+      then: [allbot.run_action: {id: bot, action: lean_forward}]
+    - action: lean_backward
+      then: [allbot.run_action: {id: bot, action: lean_backward}]
+    - action: lean_left
+      then: [allbot.run_action: {id: bot, action: lean_left}]
+    - action: lean_right
+      then: [allbot.run_action: {id: bot, action: lean_right}]
+    - action: look_left
+      then: [allbot.run_action: {id: bot, action: look_left}]
+    - action: look_right
+      then: [allbot.run_action: {id: bot, action: look_right}]
+    - action: wave_front_left
+      then: [allbot.run_action: {id: bot, action: wave_front_left}]
+    - action: wave_front_right
+      then: [allbot.run_action: {id: bot, action: wave_front_right}]
+    - action: wave_rear_left
+      then: [allbot.run_action: {id: bot, action: wave_rear_left}]
+    - action: wave_rear_right
+      then: [allbot.run_action: {id: bot, action: wave_rear_right}]
+    - action: scared
+      then:
+        - allbot.run_action: {id: bot, action: scared}
+        - rtttl.play: {rtttl: "scared:d=16,o=6,b=180:c,e,g,c7,e,g,c7"}
+    - action: chirp
+      then:
+        - rtttl.play: {rtttl: "chirp:d=32,o=7,b=180:c,c,c"}
+    - action: stop
+      then:
+        - allbot.stop: {id: bot}
+        - rtttl.stop:

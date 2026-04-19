@@ -1,0 +1,210 @@
+esphome:
+  name: allbot-wheels
+  friendly_name: ALLBOT Wheels
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [allbot]
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  frequency: 400kHz
+
+pca9685:
+  - id: pca
+    address: 0x40
+    frequency: 50Hz
+
+output:
+  - platform: ledc
+    id: buzzer_out
+    pin: GPIO13
+    frequency: 1000Hz
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_fl
+    channel: 0
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_fr
+    channel: 1
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_rl
+    channel: 2
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_hip_rr
+    channel: 3
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_wheel_fl
+    channel: 4
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_wheel_fr
+    channel: 5
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_wheel_rl
+    channel: 6
+  - platform: pca9685
+    pca9685_id: pca
+    id: pwm_wheel_rr
+    channel: 7
+
+rtttl:
+  id: buzzer
+  output: buzzer_out
+
+# Wheel servos are continuous-rotation: 90° = stopped, >90° = forward, <90° = backward.
+# To keep a drive primitive going, set wheels to a non-centre angle and let it run;
+# call `allbot.stop` or re-issue a centre-angle action to halt.
+allbot:
+  id: bot
+  servos:
+    - id: hip_fl
+      output: pwm_hip_fl
+      initial_angle: 80
+      flipped: false
+    - id: hip_fr
+      output: pwm_hip_fr
+      initial_angle: 80
+      flipped: true
+    - id: hip_rl
+      output: pwm_hip_rl
+      initial_angle: 80
+      flipped: true
+    - id: hip_rr
+      output: pwm_hip_rr
+      initial_angle: 80
+      flipped: false
+      offset: -5
+    - id: wheel_fl
+      output: pwm_wheel_fl
+      initial_angle: 90
+      flipped: true
+      offset: 2
+    - id: wheel_fr
+      output: pwm_wheel_fr
+      initial_angle: 90
+      flipped: false
+    - id: wheel_rl
+      output: pwm_wheel_rl
+      initial_angle: 90
+      flipped: true
+      offset: 1
+    - id: wheel_rr
+      output: pwm_wheel_rr
+      initial_angle: 90
+      flipped: false
+      offset: 1
+  actions:
+    # Set hips to "drive" stance, then engage wheels forward (~45° = full forward on continuous servo).
+    forward_start:
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 100}
+          - {servo: hip_fr, angle: 100}
+          - {servo: hip_rl, angle: 100}
+          - {servo: hip_rr, angle: 100}
+      - duration: 100ms
+        moves:
+          - {servo: wheel_fl, angle: 45}
+          - {servo: wheel_fr, angle: 45}
+          - {servo: wheel_rl, angle: 45}
+          - {servo: wheel_rr, angle: 45}
+
+    backward_start:
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 100}
+          - {servo: hip_fr, angle: 100}
+          - {servo: hip_rl, angle: 100}
+          - {servo: hip_rr, angle: 100}
+      - duration: 100ms
+        moves:
+          - {servo: wheel_fl, angle: 135}
+          - {servo: wheel_fr, angle: 135}
+          - {servo: wheel_rl, angle: 135}
+          - {servo: wheel_rr, angle: 135}
+
+    # Set hips splayed for a tight turn, left wheels forward / right wheels backward.
+    spin_left_start:
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_rr, angle: 45}
+      - duration: 100ms
+        moves:
+          - {servo: wheel_fl, angle: 135}
+          - {servo: wheel_rl, angle: 135}
+          - {servo: wheel_fr, angle: 45}
+          - {servo: wheel_rr, angle: 45}
+
+    spin_right_start:
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 45}
+          - {servo: hip_fr, angle: 45}
+          - {servo: hip_rl, angle: 45}
+          - {servo: hip_rr, angle: 45}
+      - duration: 100ms
+        moves:
+          - {servo: wheel_fl, angle: 45}
+          - {servo: wheel_rl, angle: 45}
+          - {servo: wheel_fr, angle: 135}
+          - {servo: wheel_rr, angle: 135}
+
+    # Stop all wheels, return hips to neutral drive stance.
+    halt:
+      - duration: 100ms
+        moves:
+          - {servo: wheel_fl, angle: 90}
+          - {servo: wheel_fr, angle: 90}
+          - {servo: wheel_rl, angle: 90}
+          - {servo: wheel_rr, angle: 90}
+      - duration: 100ms
+        moves:
+          - {servo: hip_fl, angle: 80}
+          - {servo: hip_fr, angle: 80}
+          - {servo: hip_rl, angle: 80}
+          - {servo: hip_rr, angle: 80}
+
+api:
+  actions:
+    - action: forward
+      then: [allbot.run_action: {id: bot, action: forward_start}]
+    - action: backward
+      then: [allbot.run_action: {id: bot, action: backward_start}]
+    - action: spin_left
+      then: [allbot.run_action: {id: bot, action: spin_left_start}]
+    - action: spin_right
+      then: [allbot.run_action: {id: bot, action: spin_right_start}]
+    - action: halt
+      then: [allbot.run_action: {id: bot, action: halt}]
+    - action: chirp
+      then:
+        - rtttl.play: {rtttl: "chirp:d=32,o=7,b=180:c,c,c"}
+    - action: stop
+      then:
+        - allbot.stop: {id: bot}
+        - rtttl.stop:
