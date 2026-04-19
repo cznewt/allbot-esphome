@@ -153,8 +153,15 @@ The example targets an ESP32 devkit. If you are using the original Velleman VRSS
 ## Documentation
 
 - [`docs/hardware.md`](docs/hardware.md) — PCA9685 wiring, power, servo calibration, buzzer, safety notes. Read this first if you are swapping the VRSSM/UNO stack for an ESP32.
-- [`docs/kits/vr408.md`](docs/kits/vr408.md) — VR408 quadruped: servo map, `flipped` table, first-run procedure.
-- [`docs/kits/wheels.md`](docs/kits/wheels.md) — Wheels (VR009) rover: continuous-rotation servo calibration, drive primitives, timing caveats.
+
+Per-kit pages — servo maps, gait lists, first-run procedures, and kit-specific tuning tips:
+
+- [`docs/kits/vr204.md`](docs/kits/vr204.md) — VR204 biped (4 servos)
+- [`docs/kits/vr408.md`](docs/kits/vr408.md) — VR408 quadruped (8 servos)
+- [`docs/kits/vr412.md`](docs/kits/vr412.md) — VR412 quadruped with ankles (12 servos)
+- [`docs/kits/vr612.md`](docs/kits/vr612.md) — VR612 hexapod (12 servos, tripod gait)
+- [`docs/kits/vr618.md`](docs/kits/vr618.md) — VR618 hexapod with ankles (18 servos, two PCA9685 boards)
+- [`docs/kits/wheels.md`](docs/kits/wheels.md) — Wheels (VR009) rover (continuous-rotation drive)
 
 Upstream Whadda manuals are authoritative for the mechanical assembly — this repo covers only the electronics swap and the software.
 
