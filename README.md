@@ -150,6 +150,14 @@ Each file exposes every gait as a Home Assistant action via the `api:` block, re
 
 The example targets an ESP32 devkit. If you are using the original Velleman VRSSM shield, adjust pin IDs to whatever your ESP board exposes.
 
+## Documentation
+
+- [`docs/hardware.md`](docs/hardware.md) — PCA9685 wiring, power, servo calibration, buzzer, safety notes. Read this first if you are swapping the VRSSM/UNO stack for an ESP32.
+- [`docs/kits/vr408.md`](docs/kits/vr408.md) — VR408 quadruped: servo map, `flipped` table, first-run procedure.
+- [`docs/kits/wheels.md`](docs/kits/wheels.md) — Wheels (VR009) rover: continuous-rotation servo calibration, drive primitives, timing caveats.
+
+Upstream Whadda manuals are authoritative for the mechanical assembly — this repo covers only the electronics swap and the software.
+
 ## Credits
 
 Original logic: Velleman `ALLBOT-lib` (MIT, 2017). This port preserves the `prepare`/`tick` animation semantics (1° per ms) so gaits transcribed directly from the `*.ino` examples keep their original timing.
