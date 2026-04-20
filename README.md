@@ -153,6 +153,7 @@ The example targets an ESP32 devkit. If you are using the original Velleman VRSS
 ## Documentation
 
 - [`docs/hardware.md`](docs/hardware.md) — PCA9685 wiring, power, servo calibration, buzzer, safety notes. Read this first if you are swapping the VRSSM/UNO stack for an ESP32.
+- [`docs/3d-printing.md`](docs/3d-printing.md) — printing ALLBOT plastic parts on a Prusa (model prep, PrusaSlicer, OctoPrint).
 
 Per-kit pages — servo maps, gait lists, first-run procedures, and kit-specific tuning tips:
 
